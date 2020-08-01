@@ -2,7 +2,7 @@ package com.twu.biblioteca;
 import java.awt.print.Book;
 import java.util.*;
 public class OptionList {
-    private String[] OptList = new String[]{"1. List of books", "2. Check out the book","3. quit"};
+    private String[] OptList = new String[]{"1. List of books", "2. Check out the book", "3. Return the book","4. Quit"};
     private HashMap<String, String[]> BooksList = new HashMap<String, String[]>();
     private HashMap<String, String[]> UserBooked = new HashMap<String, String[]>();
     public OptionList(){
@@ -29,13 +29,17 @@ public class OptionList {
         }
     }
 
-    public void DisplayBooksList(){
+    public void DisplayBooksList(HashMap<String, String[]> BooksList){
         Set<String> BooksTitle = BooksList.keySet();
-        int NumOfOrder = 1;
-        for(String title : BooksTitle){
-            System.out.println(NumOfOrder+". Title:"+title+" | Author: "
-                    +BooksList.get(title)[0]+" | Public Year: "+BooksList.get(title)[1]);
-            NumOfOrder++;
+        if(BooksTitle.size()!=0) {
+            int NumOfOrder = 1;
+            for (String title : BooksTitle) {
+                System.out.println(NumOfOrder + ". Title:" + title + " | Author: "
+                        + BooksList.get(title)[0] + " | Public Year: " + BooksList.get(title)[1]);
+                NumOfOrder++;
+            }
+        }else{
+            System.out.println("Sorry, there are no any books available right now.\n");
         }
     }
 
@@ -65,6 +69,40 @@ public class OptionList {
         }
     }
 
+    public void returnBook(Scanner sc, boolean InvalidFlag){
+        try {
+            int bookNum = UserBooked.keySet().size();
+            boolean successReturned = false;
+            System.out.println(bookNum>0 ? "Here is the books you have ordered: \n" :
+                    "You currently did not order any books yet. \n");
+            if(bookNum>0) {
+                DisplayBooksList(UserBooked);
+                String WelcomeMsg = "Please input the book name which you want to return: \n";
+                String ErrorMsg = "Please input a valid book name!\n";
+                System.out.println(InvalidFlag ? ErrorMsg : WelcomeMsg);
+                String returnBook = sc.next();
+                Set<String> BooksTitle = UserBooked.keySet();
+                for (String title : BooksTitle) {
+                    if(returnBook.toLowerCase().equalsIgnoreCase(title)){
+                        BooksList.put(title, UserBooked.get(title));
+                        UserBooked.remove(title);
+                        System.out.println("Thank you for returning the books! \n");
+                        successReturned = true;
+                        InitOptionList();
+                    }
+                }
+                if (!successReturned) {
+                    System.out.println("That is not a valid book to return! \n");
+                    returnBook(sc, false);
+                }
+            }else{
+                InitOptionList();
+            }
+        }catch (Exception e){
+            returnBook(sc, true);
+        }
+    }
+
     public void ReadUserInput(boolean InvalidFlag){
         Scanner sc = new Scanner(System.in);
         String WelcomeMsg = "Please press option number:\n";
@@ -76,12 +114,15 @@ public class OptionList {
             int NumOfInput = Integer.valueOf(Input);
             switch (NumOfInput) {
                 case 1:
-                    DisplayBooksList();
+                    DisplayBooksList(BooksList);
                     break;
                 case 2:
                     checkOutBook(sc, false);
                     break;
                 case 3:
+                    returnBook(sc, false);
+                    break;
+                case 4:
                     System.out.println("Thanks for using this app, we are looking forward to see you again :) ");
                     System.exit(0);
                 default:
