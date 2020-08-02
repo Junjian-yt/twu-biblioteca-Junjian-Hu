@@ -18,12 +18,16 @@ public class UserCredential {
         return CredentialMap;
     }
 
-    public boolean UserAuthentication(HashMap<String, String[]> UserDetails){
+    public boolean UserAuthentication(){
         Scanner sc = new Scanner(System.in);
         String UserName, Password;
         Set<String> NameList;
+        HashMap<String, String[]> UserDetails = new HashMap<String, String[]>();
+        HashMap<String, String[]> SignInedUser = new HashMap<String, String[]>();
         boolean DetailsMatched = false;
 
+
+        UserDetails = InitUserDetails();
         System.out.println("Before you start to use this app, you have to login first! \nUserName: ");
         UserName = sc.next();
         System.out.println("\nPassword: ");
@@ -33,8 +37,18 @@ public class UserCredential {
         for(String Name : NameList){
             if(Name.equalsIgnoreCase(UserName)){
                 if(Password.equalsIgnoreCase(UserDetails.get(Name)[0])){
-                    System.out.println("Hi, "+Name+"\n");
+                    System.out.println("\nHi, "+Name+"\n");
                     DetailsMatched = true;
+
+                    SignInedUser.put(Name, Arrays.copyOf(CredentialMap.get(Name), CredentialMap.get(Name).length));
+                    OptionList Opts = new OptionList(SignInedUser);
+                    try {
+                        Opts.InitOptionList();
+                    }
+                    catch(Exception e) {
+                        System.out.println("Error: "+e.getMessage());
+                    }
+
                     return true;
                 }else{
                     System.out.println("Invalid Password!\n");
