@@ -4,10 +4,13 @@ import java.lang.reflect.Type;
 import java.util.*;
 public class OptionList {
     private String[] OptList = new String[]{"1. List of books", "2. Check out the book", "3. Return the book",
-            "4. View my credentials","5. Quit"};
+            "4. List of Movies", "5. Check out the movie", "6. Return the movie", "7. View my credentials","8. Quit"};
     private HashMap<String, String[]> BooksList = new HashMap<String, String[]>();
     private HashMap<String, String[]> UserBooked = new HashMap<String, String[]>();
+    private HashMap<String, String[]> MoviesList = new HashMap<String, String[]>();
+    private HashMap<String, String[]> MovieBooked = new HashMap<String, String[]>();
     private HashMap<String, String[]> UserCredential = new HashMap<String, String[]>();
+    Movies movies = new Movies();
     public OptionList(HashMap<String, String[]> UserCredential){
         this.UserCredential = UserCredential;
     }
@@ -16,6 +19,7 @@ public class OptionList {
         System.out.println("Welcome to Biblioteca. Your one-stop-shop for great book titles in Bangalore!");
         DisplayOptionList();
         InitBooksList();
+        this.MoviesList = movies.InitMovieList(MoviesList);
         ReadUserInput(false);
     }
 
@@ -42,14 +46,15 @@ public class OptionList {
                 NumOfOrder++;
             }
         }else{
-            System.out.println("Sorry, there are no any books available right now.\n");
+            System.out.println("Sorry, there are no any items available right now.\n");
         }
     }
 
-    public void checkOutBook(Scanner sc, boolean InvalidFlag) {
+    public void checkOut(Scanner sc, boolean InvalidFlag, HashMap<String, String[]> BooksList,
+                         HashMap<String, String[]> UserBooked) {
         try{
-            String WelcomeMsg = "Please input the book name you want to order: \n";
-            String ErrorMsg = "Please input a valid book name!\n";
+            String WelcomeMsg = "Please input the item name you want to order: \n";
+            String ErrorMsg = "Please input a valid item name!\n";
             boolean successBooked = false;
             System.out.println(InvalidFlag ? ErrorMsg : WelcomeMsg);
             String orderName = sc.next();
@@ -58,51 +63,58 @@ public class OptionList {
                 if(orderName.toLowerCase().equalsIgnoreCase(title)){
                     UserBooked.put(title, BooksList.get(title));
                     BooksList.remove(title);
-                    System.out.println("Thank you, Enjoy the book!\n");
+                    System.out.println("Thank you, Enjoy the item!\n");
                     successBooked = true;
                     InitOptionList();
                 }
             }
             if(!successBooked){
-                System.out.println("Sorry, that book is not available!\n");
-                checkOutBook(sc, false);
+                System.out.println("Sorry, that item is not available!\n");
+                checkOut(sc, false, BooksList, UserBooked);
             }
         }catch (Exception e) {
-                checkOutBook(sc, true);
+                checkOut(sc, true, BooksList, UserBooked);
         }
     }
 
-    public void returnBook(Scanner sc, boolean InvalidFlag){
+    public void ReturnItem(Scanner sc, boolean InvalidFlag, String TypeOfReturn, HashMap<String, String[]> ItemList,
+                           HashMap<String, String[]> BorrowedList){
         try {
-            int bookNum = UserBooked.keySet().size();
+            int bookedNum = BorrowedList.keySet().size();
             boolean successReturned = false;
-            System.out.println(bookNum>0 ? "Here is the books you have ordered: \n" :
-                    "You currently did not order any books yet. \n");
-            if(bookNum>0) {
-                DisplayBooksList(UserBooked);
-                String WelcomeMsg = "Please input the book name which you want to return: \n";
-                String ErrorMsg = "Please input a valid book name!\n";
+            System.out.println(bookedNum>0 ? "Here is the items you have ordered: \n" :
+                    "You currently did not order any item yet. \n");
+            if(bookedNum>0) {
+
+                if(TypeOfReturn.equalsIgnoreCase("book")) {
+                    DisplayBooksList(BorrowedList);
+                }else if(TypeOfReturn.equalsIgnoreCase("movie")){
+                    movies.DisplayMoviesList(BorrowedList);
+                }
+
+                String WelcomeMsg = "Please input the item name which you want to return: \n";
+                String ErrorMsg = "Please input a valid item name!\n";
                 System.out.println(InvalidFlag ? ErrorMsg : WelcomeMsg);
                 String returnBook = sc.next();
-                Set<String> BooksTitle = UserBooked.keySet();
+                Set<String> BooksTitle = BorrowedList.keySet();
                 for (String title : BooksTitle) {
                     if(returnBook.toLowerCase().equalsIgnoreCase(title)){
-                        BooksList.put(title, UserBooked.get(title));
-                        UserBooked.remove(title);
-                        System.out.println("Thank you for returning the books! \n");
+                        ItemList.put(title, BorrowedList.get(title));
+                        BorrowedList.remove(title);
+                        System.out.println("Thank you for returning the items! \n");
                         successReturned = true;
                         InitOptionList();
                     }
                 }
                 if (!successReturned) {
-                    System.out.println("That is not a valid book to return! \n");
-                    returnBook(sc, false);
+                    System.out.println("That is not a valid item to return! \n");
+                    ReturnItem(sc, false, TypeOfReturn, ItemList, BorrowedList);
                 }
             }else{
                 InitOptionList();
             }
         }catch (Exception e){
-            returnBook(sc, true);
+            ReturnItem(sc, true, TypeOfReturn, ItemList, BorrowedList);
         }
     }
 
@@ -136,15 +148,24 @@ public class OptionList {
                     DisplayBooksList(BooksList);
                     break;
                 case 2:
-                    checkOutBook(sc, false);
+                    checkOut(sc, false, BooksList, UserBooked);
                     break;
                 case 3:
-                    returnBook(sc, false);
+                    ReturnItem(sc, false, "book", BooksList, UserBooked);
                     break;
                 case 4:
-                    ViewUserCredentials();
+                    movies.DisplayMoviesList(MoviesList);
                     break;
                 case 5:
+                    checkOut(sc, false, MoviesList, MovieBooked);
+                    break;
+                case 6:
+                    ReturnItem(sc, false, "movie", MoviesList, MovieBooked);
+                    break;
+                case 7:
+                    ViewUserCredentials();
+                    break;
+                case 8:
                     System.out.println("Thanks for using this app, we are looking forward to see you again :) ");
                     System.exit(0);
                 default:
