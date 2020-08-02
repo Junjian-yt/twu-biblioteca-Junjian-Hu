@@ -1,8 +1,10 @@
 package com.twu.biblioteca;
 import java.awt.print.Book;
+import java.lang.reflect.Type;
 import java.util.*;
 public class OptionList {
-    private String[] OptList = new String[]{"1. List of books", "2. Check out the book", "3. Return the book","4. Quit"};
+    private String[] OptList = new String[]{"1. List of books", "2. Check out the book", "3. Return the book",
+            "4. View my credentials","5. Quit"};
     private HashMap<String, String[]> BooksList = new HashMap<String, String[]>();
     private HashMap<String, String[]> UserBooked = new HashMap<String, String[]>();
     private HashMap<String, String[]> UserCredential = new HashMap<String, String[]>();
@@ -104,6 +106,22 @@ public class OptionList {
         }
     }
 
+    public void ViewUserCredentials(){
+        String[] CredentialTitles = new String[]{"UserName: ", "password", "Email: ", "Phone Number: "};
+        String[] CredentialDetails = new String[4];
+        int count = 1;
+        for(String str : UserCredential.keySet()){
+                CredentialDetails[0] = str;
+        }
+        for(String str : UserCredential.get(CredentialDetails[0])){
+            CredentialDetails[count] = str;
+            count++;
+        }
+        for(int i=0; i<4; i++){
+            System.out.println(i == 1 ? "" : (CredentialTitles[i]+CredentialDetails[i]+"\n"));
+        }
+    }
+
     public void ReadUserInput(boolean InvalidFlag){
         Scanner sc = new Scanner(System.in);
         String WelcomeMsg = "Please press option number:\n";
@@ -124,6 +142,9 @@ public class OptionList {
                     returnBook(sc, false);
                     break;
                 case 4:
+                    ViewUserCredentials();
+                    break;
+                case 5:
                     System.out.println("Thanks for using this app, we are looking forward to see you again :) ");
                     System.exit(0);
                 default:
