@@ -5,8 +5,9 @@ public class OptionList {
     private String[] OptList = new String[]{"1. List of books", "2. Check out the book", "3. Return the book","4. Quit"};
     private HashMap<String, String[]> BooksList = new HashMap<String, String[]>();
     private HashMap<String, String[]> UserBooked = new HashMap<String, String[]>();
-    public OptionList(){
-
+    private HashMap<String, String[]> UserCredential = new HashMap<String, String[]>();
+    public OptionList(HashMap<String, String[]> UserCredential){
+        this.UserCredential = UserCredential;
     }
 
     public void InitOptionList(){
